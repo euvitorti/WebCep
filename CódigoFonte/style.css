@@ -1,0 +1,72 @@
+* {
+    margin: 0 auto;
+}
+
+body {
+    height: 100vh;
+    background: #fff;
+    font: normal 15pt Arial;
+    max-width: 1280px;
+    background-image: url(Fotos/visualizacao-3d-do-mapa.jpg);
+}
+
+header {
+    color: #fff;
+    text-align: center;
+    padding: 40px;
+}
+
+header .messagem {
+    font-size: 50px;
+    color: #fff;
+    align-items: center;
+}
+
+section {
+    border-radius: 5px;
+    padding: 50px;
+    width: 500px;
+    height: 100px;
+    margin: auto;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.479);
+}
+
+div {
+    text-align: center;
+    padding: 25px;
+    justify-content: baseline;
+}
+
+footer {
+    color: #000;
+    text-align: justify;
+    font-style: oblique;
+}
+
+/* ESTILO CABEÇALHO*/
+/* RESPONSIVIDADE*/
+
+@media screen and (max-width: 800px) {
+    header {
+        text-align: center;
+        padding: 25px;
+    }
+
+    header .messagem {
+        font-size: 25px;
+    }
+
+    section {
+        border-radius: 5px;
+        display: list-item;
+        padding: 50px;
+        width: 250px;
+        height: 100px;
+        margin: auto;
+    }
+
+    div {
+        padding: 0px;
+        justify-content: baseline;
+    }
+}
