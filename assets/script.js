@@ -5,43 +5,25 @@ const neighborhoodInput = document.querySelector('#neighborhood'); // Neighborho
 const cityInput = document.querySelector('#city'); // City input
 const messageDisplay = document.querySelector('#message'); // Message display area
 
-// Cache for storing previously fetched ZIP code data
-const cache = {};
-
 // Function to fetch ZIP code data from the API
 async function fetchZipCodeData(zipCode) {
-    // Check if the data is already in the cache
-    if (cache[zipCode]) {
-        return cache[zipCode]; // Return cached data
-    }
-
     // Show loading indicator
     messageDisplay.textContent = "Loading...";
 
-    // Making a call to the API to fetch address details
-    const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
+    try {
+        // Make a call to the API to fetch address details
+        const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
 
-    // Check if the response is not OK (e.g., if the ZIP code does not exist)
-    if (!response.ok) {
-        throw await response.json(); // Throw the error response
-    }
-
-    const data = await response.json(); // Parse the JSON response
-    cache[zipCode] = data; // Store in cache for future requests
-    return data; // Return the fetched data
-}
-
-// Debounce function to limit the rate of API calls
-function debounce(func, delay) {
-    let timeoutId;
-    return function (...args) {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
+        // Check if the response is not OK (e.g., if the ZIP code does not exist)
+        if (!response.ok) {
+            throw await response.json(); // Throw the error response
         }
-        timeoutId = setTimeout(() => {
-            func.apply(null, args);
-        }, delay);
-    };
+
+        const data = await response.json(); // Parse the JSON response
+        return data; // Return the fetched data
+    } finally {
+        messageDisplay.textContent = ""; // Clear the loading indicator
+    }
 }
 
 // Function to handle the ZIP code input focus out event
@@ -53,32 +35,27 @@ const handleZipCodeFocusOut = async () => {
 
         // Validate the ZIP code input
         if (!onlyNumbersRegex.test(zipCodeInput.value) || !validZipCodeRegex.test(zipCodeInput.value)) {
-            throw { zipCodeError: 'INVALID ZIP CODE' }; // Throw an error if validation fails
+            throw { zipCodeError: 'Invalid ZIP code. Please enter exactly 8 digits.' }; // Throw an error if validation fails
         }
 
         // Fetch ZIP code data
         const zipCodeData = await fetchZipCodeData(zipCodeInput.value);
 
-        // Extracting values from the API response and populating the respective input fields
-        streetInput.value = zipCodeData.logradouro; // Set the street input
-        neighborhoodInput.value = zipCodeData.bairro; // Set the neighborhood input
-        cityInput.value = zipCodeData.localidade; // Set the city input
+        // Populate the respective input fields with the API response
+        streetInput.value = zipCodeData.logradouro || ""; // Set the street input
+        neighborhoodInput.value = zipCodeData.bairro || ""; // Set the neighborhood input
+        cityInput.value = zipCodeData.localidade || ""; // Set the city input
 
-        // Clear any previous messages
-        messageDisplay.textContent = "";
     } catch (error) {
-        // If there's an error, inform the user
+        // If there's an error, show an alert
         if (error?.zipCodeError) {
-            messageDisplay.textContent = error.zipCodeError; // Display the error message
-            // After 5 seconds, the message will be cleared
-            setTimeout(() => {
-                messageDisplay.textContent = ""; // Clear the message
-            }, 5000);
+            window.alert(error.zipCodeError); // Display the error message
         } else {
-            console.error(error); // Log any other errors to the console
+            window.alert("An error occurred while fetching ZIP code data."); // Generic error message
+            console.error(error); // Log the error details to the console
         }
     }
 };
 
-// Add an event listener for when the ZIP code input loses focus with debouncing
-zipCodeInput.addEventListener('focusout', debounce(handleZipCodeFocusOut, 300)); // Adjust delay as necessary
+// Add an event listener for when the ZIP code input loses focus
+zipCodeInput.addEventListener('focusout', handleZipCodeFocusOut);
